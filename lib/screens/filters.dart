@@ -1,26 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meals/providers/filters_provider.dart';
 // import 'package:meals/screens/tabs.dart';
 // import 'package:meals/widgets/main_drawer.dart';
 
-enum Filter {
-  glutenFree,
-  lactozeFree,
-  vegan,
-  vegetarian,
-}
-
-class FiltersScreen extends StatefulWidget {
-  const FiltersScreen({super.key, required this.currentFilters});
-
-  final Map<Filter, bool> currentFilters;
+class FiltersScreen extends ConsumerStatefulWidget {
+  const FiltersScreen({super.key});
 
   @override
-  State<FiltersScreen> createState() {
+  ConsumerState<FiltersScreen> createState() {
     return _FiltersScreenState();
   }
 }
 
-class _FiltersScreenState extends State<FiltersScreen> {
+class _FiltersScreenState extends ConsumerState<FiltersScreen> {
   var _glutenFreeFilterSet = false;
   var _lactozeFreeFilterSet = false;
   var _veganFreeFilterSet = false;
@@ -29,11 +22,13 @@ class _FiltersScreenState extends State<FiltersScreen> {
   @override
   void initState() {
     super.initState();
-    _glutenFreeFilterSet = widget.currentFilters[Filter.glutenFree]!;
-    _lactozeFreeFilterSet = widget.currentFilters[Filter.lactozeFree]!;
-    _veganFreeFilterSet = widget.currentFilters[Filter.vegan]!;
-    _vegetarianFreeFilterSet = widget.currentFilters[Filter.vegetarian]!;
+    final activeFilters = ref.read(filtersProvider);
+    _glutenFreeFilterSet = activeFilters[Filter.glutenFree]!;
+    _lactozeFreeFilterSet = activeFilters[Filter.lactozeFree]!;
+    _veganFreeFilterSet = activeFilters[Filter.vegan]!;
+    _vegetarianFreeFilterSet = activeFilters[Filter.vegetarian]!;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,10 +46,9 @@ class _FiltersScreenState extends State<FiltersScreen> {
       //   }),
       // ),
       body: PopScope(
-        canPop: false,
+        canPop: true,
         onPopInvoked: (bool didPop) {
-          if (didPop) return;
-          Navigator.of(context).pop({
+          ref.read(filtersProvider.notifier).setFilters({
             Filter.glutenFree: _glutenFreeFilterSet,
             Filter.vegetarian: _vegetarianFreeFilterSet,
             Filter.vegan: _veganFreeFilterSet,
